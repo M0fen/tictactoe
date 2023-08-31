@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  /* Estilos de diseño aquí... */
+
+  body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #1a1a1a;
+  }
+
+  #container {
+    background-color: #333;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  #board {
+    display: grid;
+    grid-template-columns: repeat(3, 100px);
+    grid-gap: 2px;
+  }
+
+  .cell {
+    width: 100px;
+    height: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 32px;
+    cursor: pointer;
+    background-color: white;
+  }
+
+  .cell.x {
+    color: blue;
+  }
+
+  .cell.o {
+    color: red;
+  }
+
+  #reset-button {
+    margin-top: 20px;
+    background-color: #333;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+  }
+
+  #title {
+    text-align: center;
+    font-size: 24px;
+    color: white;
+    margin-bottom: 20px;
+  }
+</style>
+<title>Tic Tac Toe</title>
+</head>
+<body>
+<div id="container">
+  <div id="title">Tic Tac Toe</div>
+  <div id="board"></div>
+  <button id="reset-button">Reset Game</button>
+</div>
+<script>
+  const board = document.getElementById("board");
+  const resetButton = document.getElementById("reset-button");
+  const cells = [];
+  let currentPlayer = "x";
+  let gameOver = false;
+
+  function createCell(row, col) {
+    const cell = document.createElement("div");
+    cell.classList.add("cell");
+    cell.dataset.row = row;
+    cell.dataset.col = col;
+    cell.addEventListener("click", handleCellClick);
+    cells.push(cell);
+    return cell;
+  }
+
+  function handleCellClick(event) {
+    const cell = event.target;
+    const row = parseInt(cell.dataset.row);
+    const col = parseInt(cell.dataset.col);
+
+    if (!cell.textContent && !gameOver) {
+      cell.textContent = currentPlayer;
+      cell.classList.add(currentPlayer);
+      if (checkWin(row, col)) {
+        gameOver = true;
+        showWinnerAlert(currentPlayer);
+      } else {
+        currentPlayer = currentPlayer === "x" ? "o" : "x";
+      }
+    }
+  }
+
+  function checkWin(row, col) {
+    const directions = [
+      [0, 1], [1, 0], [1, 1], [1, -1]
+    ];
+
+    for (const [dx, dy] of directions) {
+      let count = 1;
+      count += countDirection(row, col, dx, dy);
+      count += countDirection(row, col, -dx, -dy);
+        
+      if (count >= 3) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  function countDirection(row, col, dx, dy) {
+    let r = row + dx;
+    let c = col + dy;
+    let count = 0;
+
+    while (r >= 0 && r < 3 && c >= 0 && c < 3 && cells[r * 3 + c].textContent === currentPlayer) {
+      count++;
+      r += dx;
+      c += dy;
+    }
+
+    return count;
+  }
+
+  function showWinnerAlert(player) {
+    const winner = player === "x" ? "Player X" : "Player O";
+    alert(`${winner} wins!`);
+  }
+
+  function resetGame() {
+    cells.forEach(cell => {
+      cell.textContent = "";
+      cell.classList.remove("x", "o");
+    });
+    currentPlayer = "x";
+    gameOver = false;
+  }
+
+  for (let row = 0; row < 3; row++) {
+    for (let col = 0; col < 3; col++) {
+      const cell = createCell(row, col);
+      board.appendChild(cell);
+    }
+  }
+
+  resetButton.addEventListener("click", resetGame);
+</script>
+</body>
+</html>
